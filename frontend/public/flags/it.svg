@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Italy flag">
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="#f4f4f4"/>
+  <rect x="2" y="2" width="20" height="60" rx="12" fill="#009246"/>
+  <rect x="22" y="2" width="20" height="60" fill="#fefefe"/>
+  <rect x="42" y="2" width="20" height="60" rx="12" fill="#ce2b37"/>
+</svg>

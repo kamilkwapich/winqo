@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    depends_on:
+      - db
+    networks:
+      - default
+      - crm_default
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    networks:
+      - default
+      - crm_default
+
+volumes:
+  dbdata:
+
+networks:
+  crm_default:
+    external: true
+    name: crm_default

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #111; margin: 24px; }
+    .header { display:flex; justify-content:space-between; align-items:flex-start; gap: 20px; margin-bottom: 16px; }
+    .brand { display:flex; align-items:flex-start; gap: 10px; }
+    .brand-info { display:flex; flex-direction:column; gap:3px; white-space: nowrap; }
+    .brand h1 { margin:0; font-size: 16px; line-height: 1.1; white-space: nowrap; }
+    .muted { color: #666; }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; margin: 10px 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #eee; padding: 8px; vertical-align: top; }
+    th { text-align:left; background: #f7f7f7; }
+    .right { text-align:right; }
+    .svg-wrap { width: 220px; }
+    .totals { margin-top: 12px; width: 280px; margin-left: auto; }
+    .totals td { border: 0; padding: 4px 0; }
+    .title { font-size: 16px; margin: 0 0 4px 0; }
+    .logo { max-width: 80px; max-height: 44px; object-fit: contain; display:block; margin-top: -6px; }
+    .brand-line { font-size: 11px; white-space: nowrap; }
+    .item-title { font-weight: 600; margin-bottom: 4px; }
+    .footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #eee; display:flex; justify-content:space-between; align-items:center; gap: 12px; font-size: 10px; color: #555; }
+    .footer .brandmark { display:flex; align-items:center; gap:8px; font-weight:700; letter-spacing:0.2px; }
+    .footer .brandmark svg { width:18px; height:18px; }
+    .item-row { background: #fafafa; }
+    .details-row td { padding-top: 0; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      {% if logo_data %}
+        <img src="{{ logo_data }}" alt="Logo" class="logo" />
+      {% endif %}
+      <div class="brand-info">
+        <h1>{{ tenant.name }}</h1>
+        <div class="muted brand-line">
+          {% if tenant.company_address %}{{ tenant.company_address }}{% endif %}
+        </div>
+        <div class="muted brand-line">
+          {% if tenant.company_phone %}{{ t("phone") }}: {{ tenant.company_phone }} {% endif %}
+          {% if tenant.company_email %}{{ t("email") }}: {{ tenant.company_email }} {% endif %}
+          {% if tenant.company_website %}{{ t("website") }}: {{ tenant.company_website }}{% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="title">{{ t("quote") }}: {{ quote.number }}</div>
+      <div class="muted">{{ t("quote_name") }}: {{ quote.name }}</div>
+      <div class="muted">{{ t("date") }}: {{ quote.created_at.strftime('%Y-%m-%d') }}</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <b>{{ t("client") }}</b><br/>
+    {% if client %}
+      {{ client.name }}<br/>
+      {% if client.address %}{{ client.address }}<br/>{% endif %}
+      {% if client.email %}{{ client.email }}<br/>{% endif %}
+      {% if client.phone %}{{ client.phone }}<br/>{% endif %}
+    {% else %}
+      <span class="muted">{{ t("no_client") }}</span>
+    {% endif %}
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:60px;">{{ t("position") }}</th>
+        <th style="width: 240px;">{{ t("drawing") }}</th>
+        <th class="right" style="width:80px;">{{ t("qty") }}</th>
+        {% if show_item_prices %}
+        <th class="right" style="width:120px;">{{ t("unit") }}</th>
+        <th class="right" style="width:120px;">{{ t("total") }}</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in items %}
+      <tr class="item-row">
+        <td class="right" style="font-weight:600;">{{ t("position") }} {{ it.position }}</td>
+        <td class="svg-wrap">
+          {% if it.svg %}
+            {{ it.svg | safe }}
+          {% else %}
+            <span class="muted">—</span>
+          {% endif %}
+        </td>
+        <td class="right">{{ it.qty }}</td>
+        {% if show_item_prices %}
+        <td class="right">{{ money(it.unit_price_cents, quote.currency) }}</td>
+        <td class="right">{{ money(it.total_cents, quote.currency) }}</td>
+        {% endif %}
+      </tr>
+      <tr class="details-row">
+        <td colspan="{{ 5 if show_item_prices else 3 }}">
+          <div class="item-title">{{ it.name }}</div>
+          {% if it.spec_lines %}
+            <div class="muted">
+              {% for line in it.spec_lines %}
+                {{ line }}<br/>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if it.notes %}
+            <div style="margin-top:6px; font-size:11px;">{{ t("notes") }}: {{ it.notes }}</div>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if show_total_price %}
+  <table class="totals">
+    {% if show_price_breakdown %}
+    <tr><td class="muted">{{ t("subtotal") }}</td><td class="right">{{ money(subtotal_cents, quote.currency) }}</td></tr>
+    {% if discount_cents %}<tr><td class="muted">{{ t("discount") }}</td><td class="right">- {{ money(discount_cents, quote.currency) }}</td></tr>{% endif %}
+    {% if transport_cost_cents %}<tr><td class="muted">{{ t("transport") }}</td><td class="right">{{ money(transport_cost_cents, quote.currency) }}</td></tr>{% endif %}
+    {% if installation_cost_cents %}<tr><td class="muted">{{ t("installation") }}</td><td class="right">{{ money(installation_cost_cents, quote.currency) }}</td></tr>{% endif %}
+    {% if extra_costs_cents %}<tr><td class="muted">{{ t("extra_costs") }}</td><td class="right">{{ money(extra_costs_cents, quote.currency) }}</td></tr>{% endif %}
+    {% if vat_amount_cents %}<tr><td class="muted">{{ t("vat") }} ({{ vat_rate }}%)</td><td class="right">{{ money(vat_amount_cents, quote.currency) }}</td></tr>{% endif %}
+    {% endif %}
+    <tr><td><b>{{ t("grand_total") }}</b></td><td class="right"><b>{{ money(total_cents, quote.currency) }}</b></td></tr>
+  </table>
+  {% endif %}
+
+  {% if quote.notes %}
+  <div class="card">
+    <b>Notes</b><br/>
+    {{ quote.notes }}
+  </div>
+  {% endif %}
+
+  {% if show_branding %}
+    <div class="footer">
+      <div class="brandmark">
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="28" height="28" rx="6" ry="6" fill="#2563eb"/><path d="M8 22l4.5-12h3L20 22h-3l-1-3.2h-5L10 22H8zm9-5l-1.6-5-1.6 5H17z" fill="#fff"/></svg>
+        <span>Winqo</span>
+      </div>
+      <div>
+        <a href="https://winqo.online" style="color:#2563eb; text-decoration:none;">winqo.online</a> · <span>winqo@winqo.online</span>
+      </div>
+    </div>
+  {% endif %}
+</body>
+</html>

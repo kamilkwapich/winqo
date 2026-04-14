@@ -1,0 +1,19 @@
+services:
+  backend:
+    env_file:
+      - ./backend/.environment
+    expose:
+      - "8000"
+    networks:
+      - crm_default
+
+  frontend:
+    expose:
+      - "3000"
+    networks:
+      - crm_default
+
+networks:
+  crm_default:
+    external: true
+    name: crm_default

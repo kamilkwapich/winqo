@@ -1,0 +1,38 @@
+# Docker Compose override for local development
+docker-compose.override.yml
+
+# Environment files
+backend/.env
+frontend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+env/
+venv/
+ENV/
+*.db
+
+# Node
+node_modules/
+.next/
+*.log
+
+# Local files
+tmp/
+backup/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
